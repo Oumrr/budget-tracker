@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#0f766e" />
+    <meta
+      name="description"
+      content="Budget Tracker — a simple personal budgeting app in Tunisian Dinar."
+    />
+    <title>Budget Tracker</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <!-- ============================ ONBOARDING ============================ -->
+    <div id="onboarding" class="onboarding" hidden>
+      <div class="onboarding-card">
+        <div class="onboarding-logo" aria-hidden="true">₿</div>
+        <h1>Welcome to Budget Tracker</h1>
+        <p class="muted">
+          Let's get started. Enter the money you currently have in your account — every balance
+          from here on builds from this number.
+        </p>
+
+        <label class="field">
+          <span class="field-label">Starting balance</span>
+          <div class="amount-input">
+            <input
+              id="onboard-balance"
+              type="text"
+              inputmode="decimal"
+              placeholder="0.000"
+              autocomplete="off"
+            />
+            <span class="amount-suffix">TND</span>
+          </div>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Monthly budget limit <span class="muted">(optional)</span></span>
+          <div class="amount-input">
+            <input
+              id="onboard-budget"
+              type="text"
+              inputmode="decimal"
+              placeholder="0.000"
+              autocomplete="off"
+            />
+            <span class="amount-suffix">TND</span>
+          </div>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Current savings <span class="muted">(optional)</span></span>
+          <div class="amount-input">
+            <input
+              id="onboard-savings"
+              type="text"
+              inputmode="decimal"
+              placeholder="0.000"
+              autocomplete="off"
+            />
+            <span class="amount-suffix">TND</span>
+          </div>
+        </label>
+
+        <button id="onboard-submit" class="btn btn-primary btn-block btn-lg">
+          Start tracking
+        </button>
+        <p class="onboard-note muted">
+          Everything is stored privately in this browser. No account, no server.
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================== APP ================================= -->
+    <div id="app" class="app" hidden>
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div>
+            <p class="topbar-eyebrow" id="topbar-eyebrow">Dashboard</p>
+            <h1 class="topbar-title" id="topbar-title">Budget Tracker</h1>
+          </div>
+          <div class="month-pill" id="month-pill">—</div>
+        </div>
+      </header>
+
+      <main class="main" id="main">
+        <!-- -------------------------- DASHBOARD -------------------------- -->
+        <section class="screen" data-screen="dashboard">
+          <div class="balance-card">
+            <p class="balance-label">Current balance</p>
+            <p class="balance-value" id="db-balance">0.000 TND</p>
+            <div class="balance-split">
+              <div>
+                <p class="mini-label">Income this month</p>
+                <p class="mini-value pos" id="db-income">0.000 TND</p>
+              </div>
+              <div>
+                <p class="mini-label">Spent this month</p>
+                <p class="mini-value neg" id="db-expense">0.000 TND</p>
+              </div>
+              <div>
+                <p class="mini-label">Total savings</p>
+                <p class="mini-value" id="db-savings">0.000 TND</p>
+              </div>
+            </div>
+          </div>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Balance over time</h2>
+              <div class="segmented" role="tablist" aria-label="Chart range">
+                <button class="seg" role="tab" data-range="daily" aria-selected="true">Daily</button>
+                <button class="seg" role="tab" data-range="weekly" aria-selected="false">Weekly</button>
+                <button class="seg" role="tab" data-range="monthly" aria-selected="false">Monthly</button>
+              </div>
+            </div>
+            <div class="chart-wrap" id="chart-wrap"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Monthly budget</h2>
+              <a class="link" href="#budgets">Edit</a>
+            </div>
+            <div id="db-overall"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Category budgets</h2>
+              <a class="link" href="#budgets">Manage</a>
+            </div>
+            <div id="db-categories" class="progress-list"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Recent transactions</h2>
+              <a class="link" href="#transactions">See all</a>
+            </div>
+            <div class="chips" id="db-chips"></div>
+            <div id="db-recent" class="tx-list"></div>
+          </section>
+        </section>
+
+        <!-- ------------------------- TRANSACTIONS ------------------------ -->
+        <section class="screen" data-screen="transactions" hidden>
+          <div class="summary-row">
+            <div class="summary-box">
+              <p class="mini-label">Income</p>
+              <p class="mini-value pos" id="tx-income">0.000</p>
+            </div>
+            <div class="summary-box">
+              <p class="mini-label">Expenses</p>
+              <p class="mini-value neg" id="tx-expense">0.000</p>
+            </div>
+            <div class="summary-box">
+              <p class="mini-label">Net</p>
+              <p class="mini-value" id="tx-net">0.000</p>
+            </div>
+          </div>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Filter by category</h2>
+            </div>
+            <div class="chips" id="tx-chips"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">All transactions</h2>
+              <span class="muted small" id="tx-count"></span>
+            </div>
+            <div id="tx-list" class="tx-list"></div>
+          </section>
+        </section>
+
+        <!-- ---------------------------- BUDGETS -------------------------- -->
+        <section class="screen" data-screen="budgets" hidden>
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Overall monthly budget</h2>
+            </div>
+            <div id="bg-overall"></div>
+            <div class="inline-form">
+              <div class="amount-input">
+                <input id="bg-overall-input" type="text" inputmode="decimal" placeholder="No limit set" />
+                <span class="amount-suffix">TND</span>
+              </div>
+              <button id="bg-overall-save" class="btn btn-primary">Save</button>
+            </div>
+            <p class="muted small">
+              Limits carry over to the next month automatically. Spending counters reset on the 1st.
+            </p>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Category budgets</h2>
+            </div>
+            <div id="bg-categories" class="budget-editor"></div>
+          </section>
+        </section>
+
+        <!-- ---------------------------- SAVINGS -------------------------- -->
+        <section class="screen" data-screen="savings" hidden>
+          <div class="balance-card savings-card">
+            <p class="balance-label">Total savings</p>
+            <p class="balance-value" id="sv-total">0.000 TND</p>
+            <div class="balance-split two">
+              <div>
+                <p class="mini-label">Added all time</p>
+                <p class="mini-value pos" id="sv-added">0.000 TND</p>
+              </div>
+              <div>
+                <p class="mini-label">Withdrawn all time</p>
+                <p class="mini-value neg" id="sv-withdrawn">0.000 TND</p>
+              </div>
+            </div>
+          </div>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Move money</h2>
+            </div>
+            <div class="segmented full" role="tablist" aria-label="Savings action">
+              <button class="seg" data-sv-type="add" aria-selected="true">+ Add</button>
+              <button class="seg" data-sv-type="withdraw" aria-selected="false">− Withdraw</button>
+            </div>
+            <label class="field">
+              <span class="field-label">Amount</span>
+              <div class="amount-input">
+                <input id="sv-amount" type="text" inputmode="decimal" placeholder="0.000" />
+                <span class="amount-suffix">TND</span>
+              </div>
+            </label>
+            <label class="field">
+              <span class="field-label">Note <span class="muted">(optional)</span></span>
+              <input id="sv-note" type="text" placeholder="e.g. Monthly set-aside" />
+            </label>
+            <button id="sv-submit" class="btn btn-primary btn-block">Add to savings</button>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">History</h2>
+            </div>
+            <div id="sv-history" class="tx-list"></div>
+          </section>
+        </section>
+
+        <!-- --------------------------- SETTINGS -------------------------- -->
+        <section class="screen" data-screen="settings" hidden>
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Starting balance</h2>
+            </div>
+            <p class="muted small">
+              The balance you had before tracking anything. All balances build from here.
+            </p>
+            <div class="inline-form">
+              <div class="amount-input">
+                <input id="st-start" type="text" inputmode="decimal" placeholder="0.000" />
+                <span class="amount-suffix">TND</span>
+              </div>
+              <button id="st-start-save" class="btn btn-primary">Save</button>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Categories</h2>
+              <span class="muted small" id="st-cat-count"></span>
+            </div>
+            <div class="new-cat">
+              <input id="st-cat-name" type="text" placeholder="New category name" maxlength="24" />
+              <input id="st-cat-icon" type="text" placeholder="🙂" maxlength="2" class="icon-input" />
+              <select id="st-cat-type">
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+              <button id="st-cat-add" class="btn btn-primary">Add</button>
+            </div>
+            <div class="color-row" id="st-cat-colors"></div>
+            <div id="st-categories" class="cat-list"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2 class="card-title">Budget limits</h2>
+              <a class="link" href="#budgets">Open budgets</a>
+            </div>
+            <p class="muted small">Overall and per-category limits are edited on the Budgets screen.</p>
+          </section>
+
+          <section class="card danger-card">
+            <div class="card-head">
+              <h2 class="card-title">Data</h2>
+            </div>
+            <p class="muted small">
+              Your data lives only in this browser. Clearing it cannot be undone.
+            </p>
+            <div class="btn-row">
+              <button id="st-seed" class="btn btn-ghost">Load demo data</button>
+              <button id="st-reset" class="btn btn-danger">Reset everything</button>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <!-- FAB -->
+      <button id="fab" class="fab" aria-label="Add transaction">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+
+      <!-- Bottom navigation -->
+      <nav class="bottomnav" aria-label="Main">
+        <a class="navitem" href="#dashboard" data-nav="dashboard">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5"/></svg>
+          <span>Home</span>
+        </a>
+        <a class="navitem" href="#transactions" data-nav="transactions">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h13m0 0-3-3m3 3-3 3M20 17H7m0 0 3 3m-3-3 3-3"/></svg>
+          <span>Activity</span>
+        </a>
+        <a class="navitem" href="#budgets" data-nav="budgets">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M8 19v-6m4 6V8m4 11v-9"/></svg>
+          <span>Budgets</span>
+        </a>
+        <a class="navitem" href="#savings" data-nav="savings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v9H4zM4 9l3-4h10l3 4M9 13h6"/></svg>
+          <span>Savings</span>
+        </a>
+        <a class="navitem" href="#settings" data-nav="settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8-1.4 1.4m-10 10L5.6 18.4"/></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- ======================= TRANSACTION DIALOG ======================== -->
+    <div id="tx-modal" class="modal" hidden>
+      <div class="modal-backdrop" data-close></div>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tx-modal-title">
+        <div class="sheet-grab"></div>
+        <div class="sheet-head">
+          <h2 id="tx-modal-title">Add transaction</h2>
+          <button class="icon-btn" data-close aria-label="Close">✕</button>
+        </div>
+        <div class="sheet-body">
+          <div class="segmented full" role="tablist" aria-label="Type">
+            <button class="seg" data-tx-type="expense" aria-selected="true">Expense</button>
+            <button class="seg" data-tx-type="income" aria-selected="false">Income</button>
+          </div>
+
+          <label class="field">
+            <span class="field-label">Amount</span>
+            <div class="amount-input big">
+              <input id="tx-amount" type="text" inputmode="decimal" placeholder="0.000" autocomplete="off" />
+              <span class="amount-suffix">TND</span>
+            </div>
+          </label>
+
+          <div class="field">
+            <span class="field-label">Category</span>
+            <div class="cat-picker" id="tx-categories"></div>
+          </div>
+
+          <label class="field">
+            <span class="field-label">Date</span>
+            <input id="tx-date" type="date" />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Note <span class="muted">(optional)</span></span>
+            <input id="tx-note" type="text" placeholder="e.g. Groceries at the market" maxlength="80" />
+          </label>
+
+          <label class="switch-row">
+            <span>
+              <strong>Repeats monthly</strong>
+              <em class="muted">Auto-creates this entry every month (gym, utilities…)</em>
+            </span>
+            <input id="tx-recurring" type="checkbox" />
+            <span class="switch" aria-hidden="true"></span>
+          </label>
+
+          <p class="form-error" id="tx-error" hidden></p>
+        </div>
+        <div class="sheet-foot">
+          <button id="tx-delete" class="btn btn-danger-ghost" hidden>Delete</button>
+          <button id="tx-save" class="btn btn-primary btn-block">Save transaction</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================= CONFIRM DIALOG ========================== -->
+    <div id="confirm" class="modal" hidden>
+      <div class="modal-backdrop" data-close></div>
+      <div class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+        <h2 id="confirm-title">Are you sure?</h2>
+        <p id="confirm-text" class="muted"></p>
+        <div class="btn-row end">
+          <button id="confirm-cancel" class="btn btn-ghost">Cancel</button>
+          <button id="confirm-ok" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" hidden></div>
+
+    <script src="assets/app.js"></script>
+  </body>
+</html>
